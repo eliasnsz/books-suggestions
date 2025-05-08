@@ -23,9 +23,20 @@ async function getDatabaseClient() {
     host: process.env.POSTGRES_HOST,
     port: parseInt(process.env.POSTGRES_PORT),
     database: process.env.POSTGRES_DB,
+    ssl: getSSLValue(),
   });
 
   await client.connect();
 
   return client;
+}
+
+function getSSLValue() {
+  if (process.env.POSTGRES_CA) {
+    return {
+      ca: process.env.POSTGRES_CA,
+    };
+  }
+
+  return process.env.NODE_ENV === "production" ? true : false;
 }

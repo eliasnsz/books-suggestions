@@ -1,8 +1,8 @@
 services:
   database:
-    container_name: books-app-postgres
+    container_name: leia-ai-database
     image: postgres:latest
     env_file:
-      - ../.env
+      - ../.env.local
     ports:
       - 5432:5432
