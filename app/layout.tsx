@@ -8,7 +8,7 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Book Suggestions",
+  title: "LeiaAI",
   description: "Descubra novas leituras de acordo com o seu gosto!",
 };
 
