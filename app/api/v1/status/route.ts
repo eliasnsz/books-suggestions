@@ -10,12 +10,11 @@ export async function GET() {
     const t0 = performance.now();
     const postgresVersionQueryResult = await query("SHOW server_version;");
     const t1 = performance.now();
-    firstQueryLatencyInMs = t1 - t0
+    firstQueryLatencyInMs = t1 - t0;
 
     return postgresVersionQueryResult.rows[0].server_version;
   }
 
-  
   async function getActiveConnections() {
     const t0 = performance.now();
     const activeConnectionsQueryResult = await query({
@@ -42,7 +41,6 @@ export async function GET() {
 
     return parseInt(maxConnectionsQueryResult.rows[0].max_connections);
   }
-
 
   return NextResponse.json(
     {

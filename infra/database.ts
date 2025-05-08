@@ -16,7 +16,7 @@ export async function query(
   }
 }
 
-async function getDatabaseClient() {
+export async function getDatabaseClient() {
   const client = new Client({
     user: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
