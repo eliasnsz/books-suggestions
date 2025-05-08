@@ -1,3 +1,9 @@
+import orchestrator from "tests/orchestrator";
+
+beforeAll(async () => {
+  await orchestrator.waitForAllServices();
+});
+
 describe("GET api/v1/status", async () => {
   describe("Anonymous User", () => {
     test("Retrieving current system status", async () => {
