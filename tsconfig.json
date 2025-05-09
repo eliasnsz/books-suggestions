@@ -27,6 +27,6 @@
     "**/*.ts",
     "**/*.tsx",
     "vitest.config.js"
-  ],
+, "commitlint.config.js"  ],
   "exclude": ["node_modules"]
 }
