@@ -3,6 +3,6 @@ services:
     container_name: leia-ai-database
     image: postgres:latest
     env_file:
-      - ../.env.local
+      - ../.env.development
     ports:
       - 5432:5432

@@ -1,8 +1,8 @@
-import { Client, QueryConfig, Submittable } from "pg";
+import { Client, type QueryConfig } from "pg";
 
 export async function query(
-  queryTextOrConfig: string | QueryConfig<any[]>,
-  values?: any[],
+  queryTextOrConfig: string | QueryConfig<unknown[]>,
+  values?: unknown[],
 ) {
   let client: Client;
 
@@ -21,7 +21,7 @@ export async function getDatabaseClient() {
     user: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     host: process.env.POSTGRES_HOST,
-    port: parseInt(process.env.POSTGRES_PORT),
+    port: Number.parseInt(process.env.POSTGRES_PORT),
     database: process.env.POSTGRES_DB,
     ssl: getSSLValue(),
   });
@@ -38,5 +38,5 @@ function getSSLValue() {
     };
   }
 
-  return process.env.NODE_ENV === "production" ? true : false;
+  return process.env.NODE_ENV === "production";
 }
