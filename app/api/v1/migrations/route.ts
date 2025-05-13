@@ -2,7 +2,7 @@ import { getDatabaseClient } from "infra/database";
 import { NextResponse } from "next/server";
 import migrationRunner from "node-pg-migrate";
 import { resolve } from "node:path";
-import { Client as PgClient } from "pg";
+import type { Client as PgClient } from "pg";
 
 const defaultMigratorOptions = {
   dryRun: true,

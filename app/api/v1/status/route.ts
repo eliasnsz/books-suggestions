@@ -28,7 +28,7 @@ export async function GET() {
     const t1 = performance.now();
     secondQueryLatencyInMs = t1 - t0;
 
-    return parseInt(activeConnectionsQueryResult.rows[0].count);
+    return Number.parseInt(activeConnectionsQueryResult.rows[0].count);
   }
 
   async function getMaxConnections() {
@@ -39,7 +39,7 @@ export async function GET() {
     const t1 = performance.now();
     thirdQueryLatencyInMs = t1 - t0;
 
-    return parseInt(maxConnectionsQueryResult.rows[0].max_connections);
+    return Number.parseInt(maxConnectionsQueryResult.rows[0].max_connections);
   }
 
   return NextResponse.json(

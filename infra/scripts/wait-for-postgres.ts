@@ -1,4 +1,4 @@
-import { exec, ExecException } from "node:child_process";
+import { exec, type ExecException } from "node:child_process";
 
 checkPostgres();
 
@@ -13,7 +13,8 @@ async function checkPostgres() {
     stdout: string,
     _stderr: string,
   ) {
-    const isAcceptingConnections = stdout.search("accepting connections") != -1;
+    const isAcceptingConnections =
+      stdout.search("accepting connections") !== -1;
 
     if (!isAcceptingConnections) {
       twirlTimer;
@@ -27,11 +28,11 @@ async function checkPostgres() {
   }
 }
 
-var twirlTimer = (function () {
-  var P = ["\\", "|", "/", "-"];
-  var x = 0;
-  return setInterval(function () {
-    process.stdout.write("\r" + P[x++]);
+const twirlTimer = (() => {
+  const P = ["\\", "|", "/", "-"];
+  let x = 0;
+  return setInterval(() => {
+    process.stdout.write(`\r${P[x++]}`);
     process.stdout.write(" Aguardando Postgres aceitar conexões...");
     x &= 3;
   }, 250);

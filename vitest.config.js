@@ -1,14 +1,14 @@
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 import { defineConfig } from "vitest/config";
 
 dotenv.config({
-  path: ".env.development"
-})
+  path: ".env",
+});
 
 export default defineConfig({
   test: {
     globals: true,
     fileParallelism: false,
-    hookTimeout: 1000 * 60 // 60 seconds
+    hookTimeout: 1000 * 60, // 60 seconds
   },
 });

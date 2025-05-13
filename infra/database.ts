@@ -1,6 +1,6 @@
 import { Client, type QueryConfig } from "pg";
 
-export async function query(
+export async function query<T = any>(
   queryTextOrConfig: string | QueryConfig<unknown[]>,
   values?: unknown[],
 ) {
@@ -8,7 +8,7 @@ export async function query(
 
   try {
     client = await getDatabaseClient();
-    return await client.query(queryTextOrConfig);
+    return await client.query<T>(queryTextOrConfig);
   } catch (error) {
     console.error("Database Error: ", JSON.stringify(error));
   } finally {
