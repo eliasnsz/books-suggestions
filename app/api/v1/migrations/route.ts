@@ -1,8 +1,10 @@
-import { getDatabaseClient } from "infra/database";
-import { NextResponse } from "next/server";
-import migrationRunner from "node-pg-migrate";
 import { resolve } from "node:path";
+import migrationRunner from "node-pg-migrate";
 import type { Client as PgClient } from "pg";
+import { createEdgeRouter } from "next-connect";
+import { type NextRequest, NextResponse } from "next/server";
+
+import { getDatabaseClient } from "infra/database";
 
 const defaultMigratorOptions = {
   dryRun: true,
@@ -11,7 +13,11 @@ const defaultMigratorOptions = {
   dir: resolve("infra", "migrations"),
 };
 
-export async function GET() {
+const router = createEdgeRouter<NextRequest, { params?: unknown }>();
+
+router.get(getHandler).post(postHandler);
+
+async function getHandler() {
   let dbClient: PgClient;
 
   try {
@@ -31,7 +37,7 @@ export async function GET() {
   }
 }
 
-export async function POST() {
+async function postHandler() {
   let dbClient: PgClient;
 
   try {
@@ -57,3 +63,9 @@ export async function POST() {
     await dbClient.end();
   }
 }
+
+async function handler(request: NextRequest, ctx: { params?: unknown }) {
+  return router.run(request, ctx) as Promise<NextResponse<unknown>>;
+}
+
+export { handler as GET, handler as POST };

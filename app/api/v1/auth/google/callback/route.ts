@@ -1,9 +1,14 @@
-import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { createEdgeRouter } from "next-connect";
 
 import authentication from "models/authentication";
 
-export async function GET(request: NextRequest) {
+const router = createEdgeRouter<NextRequest, { params?: unknown }>();
+
+router.get(getHandler);
+
+async function getHandler(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
   const accessToken = await authentication.withGoogle(code);
 
@@ -12,3 +17,9 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.redirect(new URL("/", request.url));
 }
+
+async function handler(request: NextRequest, ctx: { params?: unknown }) {
+  return router.run(request, ctx) as Promise<NextResponse<unknown>>;
+}
+
+export { handler as GET };

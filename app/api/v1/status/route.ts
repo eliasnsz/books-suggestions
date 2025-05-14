@@ -1,7 +1,13 @@
-import { query } from "infra/database";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { createEdgeRouter } from "next-connect";
 
-export async function GET() {
+import { query } from "infra/database";
+
+const router = createEdgeRouter<NextRequest, { params?: unknown }>();
+
+router.get(getHandler);
+
+async function getHandler() {
   let firstQueryLatencyInMs: number;
   let secondQueryLatencyInMs: number;
   let thirdQueryLatencyInMs: number;
@@ -60,3 +66,9 @@ export async function GET() {
     { status: 200 },
   );
 }
+
+async function handler(request: NextRequest, ctx: { params?: unknown }) {
+  return router.run(request, ctx) as Promise<NextResponse<unknown>>;
+}
+
+export { handler as GET };
