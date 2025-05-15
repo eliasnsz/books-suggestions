@@ -1,11 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { createEdgeRouter } from "next-connect";
 
-const router = createEdgeRouter<NextRequest, { params?: unknown }>();
-
-router.get(getHandler);
-
-async function getHandler() {
+async function GET() {
   const authUrl = await generateGoogleAuthUrl();
   return NextResponse.redirect(authUrl);
 
@@ -33,8 +28,4 @@ async function getHandler() {
   }
 }
 
-async function handler(request: NextRequest, ctx: { params?: unknown }) {
-  return router.run(request, ctx) as Promise<NextResponse<unknown>>;
-}
-
-export { handler as GET };
+export { GET };
