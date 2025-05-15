@@ -1,12 +1,14 @@
-import { type NextRequest, NextResponse } from "next/server";
-import migrator from "models/migrator";
+import { NextResponse } from "next/server";
 
-async function GET() {
+import migrator from "models/migrator";
+import { withErrorHandler } from "infra/controller";
+
+async function getHandler() {
   const pendingMigrations = await migrator.getPendingMigrations();
   return NextResponse.json(pendingMigrations, { status: 200 });
 }
 
-async function POST() {
+async function postHandler() {
   const migratedMigrations = await migrator.runPendingMigrations();
 
   let status = 200;
@@ -18,4 +20,5 @@ async function POST() {
   return NextResponse.json(migratedMigrations, { status });
 }
 
-export { GET, POST };
+export const GET = withErrorHandler(getHandler);
+export const POST = withErrorHandler(postHandler);

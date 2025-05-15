@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { query } from "infra/database";
+import { withErrorHandler } from "infra/controller";
 
-async function GET() {
+async function getHandler() {
   let firstQueryLatencyInMs: number;
   let secondQueryLatencyInMs: number;
   let thirdQueryLatencyInMs: number;
@@ -61,4 +62,4 @@ async function GET() {
   );
 }
 
-export { GET };
+export const GET = withErrorHandler(getHandler);

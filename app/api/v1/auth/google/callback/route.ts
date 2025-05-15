@@ -2,8 +2,9 @@ import { type NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 import authentication from "models/authentication";
+import { withErrorHandler } from "infra/controller";
 
-async function GET(request: NextRequest) {
+async function getHandler(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
   const accessToken = await authentication.withGoogle(code);
 
@@ -13,4 +14,4 @@ async function GET(request: NextRequest) {
   return NextResponse.redirect(new URL("/", request.url));
 }
 
-export { GET };
+export const GET = withErrorHandler(getHandler);

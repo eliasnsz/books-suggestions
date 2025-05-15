@@ -1,12 +1,12 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { withErrorHandler } from "infra/controller";
+import { NextResponse } from "next/server";
 
-async function GET() {
+async function getHandler() {
   const authUrl = await generateGoogleAuthUrl();
   return NextResponse.redirect(authUrl);
 
   async function generateGoogleAuthUrl() {
     const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-
     const scope = [
       "https://www.googleapis.com/auth/userinfo.email",
       "https://www.googleapis.com/auth/userinfo.profile",
@@ -28,4 +28,4 @@ async function GET() {
   }
 }
 
-export { GET };
+export const GET = withErrorHandler(getHandler);
