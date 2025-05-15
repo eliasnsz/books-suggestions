@@ -1,10 +1,11 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const alreadyIsInSoonPage = new URL(request.url).pathname === "/soon";
+  const alreadyIsInDevelopmentPage =
+    new URL(request.url).pathname === "/under-development";
 
-  if (!alreadyIsInSoonPage && process.env.NODE_ENV === "production") {
-    return NextResponse.redirect(new URL("/soon", request.url));
+  if (!alreadyIsInDevelopmentPage && process.env.NODE_ENV === "production") {
+    return NextResponse.redirect(new URL("/under-development", request.url));
   }
 }
 
