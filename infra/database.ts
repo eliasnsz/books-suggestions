@@ -1,4 +1,5 @@
 import { Client, type QueryConfig } from "pg";
+import { ServiceError } from "errors";
 
 export async function query<T = any>(
   queryTextOrConfig: string | QueryConfig<unknown[]>,
@@ -8,11 +9,19 @@ export async function query<T = any>(
 
   try {
     client = await getDatabaseClient();
-    return await client.query<T>(queryTextOrConfig);
+    return await client.query<T>(queryTextOrConfig, values);
   } catch (error) {
-    console.error("Database Error: ", JSON.stringify(error));
+    const serviceError = new ServiceError({
+      message: "Ocorreu um erro com a query ou com o banco de dados.",
+      action: "Verifique se o banco de dados está rodando.",
+      cause: error.message || error.code || undefined,
+    });
+
+    throw serviceError;
   } finally {
-    await client.end();
+    if (client) {
+      await client.end();
+    }
   }
 }
 

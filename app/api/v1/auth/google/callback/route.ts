@@ -1,12 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { createEdgeRouter } from "next-connect";
 
 import authentication from "models/authentication";
-
-const router = createEdgeRouter<NextRequest, { params?: unknown }>();
-
-router.get(getHandler);
+import { withErrorHandler } from "infra/controller";
 
 async function getHandler(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
@@ -18,8 +14,4 @@ async function getHandler(request: NextRequest) {
   return NextResponse.redirect(new URL("/", request.url));
 }
 
-async function handler(request: NextRequest, ctx: { params?: unknown }) {
-  return router.run(request, ctx) as Promise<NextResponse<unknown>>;
-}
-
-export { handler as GET };
+export const GET = withErrorHandler(getHandler);

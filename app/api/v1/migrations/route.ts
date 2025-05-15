@@ -1,11 +1,7 @@
-import { createEdgeRouter } from "next-connect";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 import migrator from "models/migrator";
-
-const router = createEdgeRouter<NextRequest, { params?: unknown }>();
-
-router.get(getHandler).post(postHandler);
+import { withErrorHandler } from "infra/controller";
 
 async function getHandler() {
   const pendingMigrations = await migrator.getPendingMigrations();
@@ -24,8 +20,5 @@ async function postHandler() {
   return NextResponse.json(migratedMigrations, { status });
 }
 
-async function handler(request: NextRequest, ctx: { params?: unknown }) {
-  return router.run(request, ctx) as Promise<NextResponse<unknown>>;
-}
-
-export { handler as GET, handler as POST };
+export const GET = withErrorHandler(getHandler);
+export const POST = withErrorHandler(postHandler);

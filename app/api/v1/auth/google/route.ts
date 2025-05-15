@@ -1,9 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { createEdgeRouter } from "next-connect";
-
-const router = createEdgeRouter<NextRequest, { params?: unknown }>();
-
-router.get(getHandler);
+import { withErrorHandler } from "infra/controller";
+import { NextResponse } from "next/server";
 
 async function getHandler() {
   const authUrl = await generateGoogleAuthUrl();
@@ -11,7 +7,6 @@ async function getHandler() {
 
   async function generateGoogleAuthUrl() {
     const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-
     const scope = [
       "https://www.googleapis.com/auth/userinfo.email",
       "https://www.googleapis.com/auth/userinfo.profile",
@@ -33,8 +28,4 @@ async function getHandler() {
   }
 }
 
-async function handler(request: NextRequest, ctx: { params?: unknown }) {
-  return router.run(request, ctx) as Promise<NextResponse<unknown>>;
-}
-
-export { handler as GET };
+export const GET = withErrorHandler(getHandler);
