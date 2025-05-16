@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
-import { query } from "infra/database";
-import { withErrorHandler } from "infra/controller";
+import { type NextRequest, NextResponse } from "next/server";
 
-async function getHandler() {
+import { withErrorHandler } from "infra/controller";
+import { query } from "infra/database";
+
+async function getHandler(request: NextRequest) {
   let firstQueryLatencyInMs: number;
   let secondQueryLatencyInMs: number;
   let thirdQueryLatencyInMs: number;

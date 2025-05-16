@@ -15,6 +15,13 @@ function generateJsonWebToken(
 
   return token;
 }
+
+function verifyToken(token: string) {
+  const decrypted = jwt.verify(token, process.env.JWT_SECRET);
+  return decrypted;
+}
+
 export default Object.freeze({
   generateJsonWebToken,
+  verifyToken,
 });

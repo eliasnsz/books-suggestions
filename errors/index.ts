@@ -36,3 +36,25 @@ export class ServiceError extends BaseError {
     this.statusCode = 503;
   }
 }
+
+export class UnauthorizedError extends BaseError {
+  constructor(props?: Partial<{ message: string; action: string }>) {
+    super(
+      props?.message ?? "Você deve estar autenticado para realizar esta ação.",
+    );
+    this.name = "UnauthorizedError";
+    this.action = props?.action ?? "Faça login e tente novamente.";
+    this.statusCode = 401;
+  }
+}
+
+export class NotFoundError extends BaseError {
+  constructor(props?: Partial<{ message: string; action: string }>) {
+    super(
+      props?.message ?? "O recurso desejado não foi encontrado no sistema.",
+    );
+    this.name = "NotFoundError";
+    this.action = props?.action ?? "Confira os dados e tente novamente.";
+    this.statusCode = 404;
+  }
+}

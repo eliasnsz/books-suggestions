@@ -6,10 +6,15 @@ import { withErrorHandler } from "infra/controller";
 
 async function getHandler(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
-  const accessToken = await authentication.withGoogle(code);
+  const accessToken = await authentication.authenticateWithGoogle(code);
 
   const cookieStore = await cookies();
-  cookieStore.set("access_token", accessToken);
+
+  cookieStore.set("access_token", accessToken, {
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    sameSite: true,
+  });
 
   return NextResponse.redirect(new URL("/", request.url));
 }

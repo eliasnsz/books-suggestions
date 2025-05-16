@@ -1,8 +1,15 @@
-import { query } from "infra/database";
 import retry from "async-retry";
+import { faker } from "@faker-js/faker/locale/pt_BR";
 
-async function cleanDatabase() {
-  await query("DROP SCHEMA public CASCADE; CREATE SCHEMA public;");
+import { query } from "infra/database";
+import type { User } from "@/models/user";
+import jwt from "@/models/jwt";
+import migrator from "@/models/migrator";
+
+if (process.env.NODE_ENV !== "test") {
+  throw new Error(
+    "Orquestrador deve ser utilizado somente em ambiente de testes.",
+  );
 }
 
 async function waitForAllServices() {
@@ -29,7 +36,66 @@ async function waitForAllServices() {
   }
 }
 
+async function cleanDatabase() {
+  await query("DROP SCHEMA public CASCADE; CREATE SCHEMA public;");
+}
+
+async function runPendingMigrations() {
+  await migrator.runPendingMigrations();
+}
+
+async function createNewUser(userObject: Partial<User> = {}) {
+  const user = await runInsertQuery(userObject);
+  return user;
+
+  async function runInsertQuery(userObject: Record<string, any>) {
+    const user = {
+      id: faker.string.uuid(),
+      googleId: faker.string.numeric({ length: 30 }),
+      email: faker.internet.email({ provider: "gmail" }),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      profileImageUrl: faker.image.url(),
+      ...userObject,
+    };
+
+    const result = await query<User>({
+      text: `
+        INSERT INTO users 
+          (id, google_id, email, first_name, last_name, profile_image_url)
+        VALUES 
+          ($1, $2, $3, $4, $5, $6)
+        RETURNING
+          *;
+      `,
+      values: [
+        user.id,
+        user.googleId,
+        user.email,
+        user.firstName,
+        user.lastName,
+        user.profileImageUrl,
+      ],
+    });
+
+    return result.rows[0];
+  }
+}
+
+async function authenticateUser(userData: User) {
+  const { id, ...userWithoutId } = userData;
+
+  const token = jwt.generateJsonWebToken(userWithoutId, {
+    subject: id,
+  });
+
+  return token;
+}
+
 export default Object.freeze({
-  cleanDatabase,
   waitForAllServices,
+  cleanDatabase,
+  runPendingMigrations,
+  createNewUser,
+  authenticateUser,
 });

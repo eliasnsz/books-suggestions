@@ -1,8 +1,12 @@
-import jwt from "./jwt";
-import user from "./user";
-import google from "./google";
+import type { NextRequest } from "next/server";
+import { JsonWebTokenError } from "jsonwebtoken";
 
-async function withGoogle(code: string) {
+import { UnauthorizedError } from "@/errors";
+import google from "./google";
+import user from "./user";
+import jwt from "./jwt";
+
+async function authenticateWithGoogle(code: string) {
   const userDataFromGoogle = await google.getGoogleUserFromCode(code);
 
   const userFromGoogle = await user.findOrCreateFromGoogle({
@@ -28,6 +32,31 @@ async function withGoogle(code: string) {
   return token;
 }
 
+async function getAuthenticatedUserFromRequest(request: NextRequest) {
+  const token = request.cookies.get("access_token");
+
+  if (!token) {
+    throw new UnauthorizedError();
+  }
+
+  try {
+    const decrypted = jwt.verifyToken(token.value);
+    const userId = decrypted.sub as string;
+
+    return await user.findOneById(userId);
+  } catch (error) {
+    if (error instanceof JsonWebTokenError) {
+      throw new UnauthorizedError({
+        message: "Seu token de autenticação é inválido ou expirou.",
+        action: "Faça login novamente para obter um novo token.",
+      });
+    }
+
+    throw error;
+  }
+}
+
 export default Object.freeze({
-  withGoogle,
+  authenticateWithGoogle,
+  getAuthenticatedUserFromRequest,
 });

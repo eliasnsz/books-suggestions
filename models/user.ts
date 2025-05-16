@@ -1,6 +1,7 @@
+import { NotFoundError } from "@/errors";
 import { query } from "infra/database";
 
-type User = {
+export type User = {
   id: string;
   google_id: string;
   email: string;
@@ -17,6 +18,36 @@ type CreateUserParams = {
   lastName: string;
   profileImageUrl: string;
 };
+
+async function findOneById(userId: string) {
+  const result = await runSelectQuery(userId);
+
+  if (result.rowCount === 0) {
+    throw new NotFoundError({
+      message: "Usuário não encontrado.",
+      action: 'Verifique se o campo "id" foi informado corretamente.',
+    });
+  }
+
+  return result.rows[0];
+
+  async function runSelectQuery(userId: string) {
+    const userQueryResult = await query<User>({
+      text: `
+        SELECT
+          id, google_id, first_name, last_name, email, profile_image_url, created_at
+        FROM
+          users
+        WHERE
+          id = $1
+        LIMIT
+          1;
+      `,
+      values: [userId],
+    });
+    return userQueryResult;
+  }
+}
 
 async function findOrCreateFromGoogle(
   userObject: CreateUserParams,
@@ -76,5 +107,6 @@ async function findOrCreateFromGoogle(
 }
 
 export default Object.freeze({
+  findOneById,
   findOrCreateFromGoogle,
 });
