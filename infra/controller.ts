@@ -1,5 +1,7 @@
+import authentication from "@/models/authentication";
+import authorization from "@/models/authorization";
 import { BaseError, InternalServerError } from "errors";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 type Handler = (req: Request, ctx?: any) => Promise<NextResponse>;
 
@@ -20,5 +22,25 @@ export function withErrorHandler(handler: Handler): Handler {
         status: internalServerError.statusCode,
       });
     }
+  };
+}
+
+export function withAuthentication(handler: Handler): Handler {
+  return async (request: NextRequest, context) => {
+    const user = await authentication.getAuthenticatedUserFromRequest(request);
+
+    context.user = user;
+
+    return await handler(request, context);
+  };
+}
+
+export function withAuthorization(handler: Handler, feature: string): Handler {
+  return async (request: NextRequest, context) => {
+    const userTryingToRequest = context.user;
+
+    authorization.canRequest(userTryingToRequest, feature);
+
+    return await handler(request, context);
   };
 }

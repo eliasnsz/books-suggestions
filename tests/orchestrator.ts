@@ -5,6 +5,7 @@ import { query } from "infra/database";
 import type { User } from "@/models/user";
 import jwt from "@/models/jwt";
 import migrator from "@/models/migrator";
+import user from "@/models/user";
 
 if (process.env.NODE_ENV !== "test") {
   throw new Error(
@@ -45,41 +46,27 @@ async function runPendingMigrations() {
 }
 
 async function createNewUser(userObject: Partial<User> = {}) {
-  const user = await runInsertQuery(userObject);
-  return user;
+  const userData = {
+    id: faker.string.uuid(),
+    googleId: faker.string.numeric({ length: 30 }),
+    email: faker.internet.email({ provider: "gmail" }),
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+    profileImageUrl: faker.image.url(),
+    ...userObject,
+  };
 
-  async function runInsertQuery(userObject: Record<string, any>) {
-    const user = {
-      id: faker.string.uuid(),
-      googleId: faker.string.numeric({ length: 30 }),
-      email: faker.internet.email({ provider: "gmail" }),
-      firstName: faker.person.firstName(),
-      lastName: faker.person.lastName(),
-      profileImageUrl: faker.image.url(),
-      ...userObject,
-    };
+  return await user.findOrCreateFromGoogle({
+    google_id: userData.googleId,
+    email: userData.email,
+    firstName: userData.firstName,
+    lastName: userData.lastName,
+    profileImageUrl: userData.profileImageUrl,
+  });
+}
 
-    const result = await query<User>({
-      text: `
-        INSERT INTO users 
-          (id, google_id, email, first_name, last_name, profile_image_url)
-        VALUES 
-          ($1, $2, $3, $4, $5, $6)
-        RETURNING
-          *;
-      `,
-      values: [
-        user.id,
-        user.googleId,
-        user.email,
-        user.firstName,
-        user.lastName,
-        user.profileImageUrl,
-      ],
-    });
-
-    return result.rows[0];
-  }
+async function addFeaturesToUser(userObject: User, features: string[]) {
+  await user.addFeatures(userObject.id, features);
 }
 
 async function authenticateUser(userData: User) {
@@ -98,4 +85,5 @@ export default Object.freeze({
   runPendingMigrations,
   createNewUser,
   authenticateUser,
+  addFeaturesToUser,
 });

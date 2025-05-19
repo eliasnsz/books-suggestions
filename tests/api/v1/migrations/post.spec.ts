@@ -39,9 +39,13 @@ describe("POST api/v1/migrations", async () => {
 
       const responseBody = await response.json();
 
-      expect(response.status).toBe(200);
-      expect(responseBody.length).toBe(0);
-      expect(Array.isArray(responseBody)).toBe(true);
+      expect(response.status).toBe(403);
+      expect(responseBody).toMatchObject({
+        name: "ForbiddenError",
+        message: "Usuário não pode executar esta ação.",
+        action: 'Verifique se o usuário possui a feature "create:migrations".',
+        status_code: 403,
+      });
     });
   });
 
@@ -64,6 +68,27 @@ describe("POST api/v1/migrations", async () => {
         action: "Faça login novamente para obter um novo token.",
         status_code: 401,
       });
+    });
+  });
+
+  describe("User with 'create:migrations' feature", () => {
+    test("Trying run pending migrations", async () => {
+      const user = await orchestrator.createNewUser();
+      await orchestrator.addFeaturesToUser(user, ["create:migrations"]);
+      const token = await orchestrator.authenticateUser(user);
+
+      const response = await fetch("http://localhost:3000/api/v1/migrations", {
+        method: "POST",
+        headers: {
+          Cookie: `access_token=${token}; HttpOnly; Max-Age=3600`,
+        },
+      });
+
+      const responseBody = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(responseBody.length).toEqual(0);
+      expect(Array.isArray(responseBody)).toBe(true);
     });
   });
 });

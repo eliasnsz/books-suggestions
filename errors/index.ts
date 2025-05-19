@@ -1,6 +1,7 @@
 export class BaseError extends Error {
   public action: string;
   public statusCode: number;
+  public context?: Record<string, any>;
 
   toJSON() {
     return {
@@ -8,6 +9,7 @@ export class BaseError extends Error {
       message: this.message,
       action: this.action,
       cause: this.cause,
+      context: this.context,
       status_code: this.statusCode,
     };
   }
@@ -56,5 +58,36 @@ export class NotFoundError extends BaseError {
     this.name = "NotFoundError";
     this.action = props?.action ?? "Confira os dados e tente novamente.";
     this.statusCode = 404;
+  }
+}
+
+export class ValidationError extends BaseError {
+  public context?: Record<string, any>;
+
+  constructor(
+    props?: Partial<{
+      message: string;
+      action: string;
+      context?: Record<string, any>;
+    }>,
+  ) {
+    super(props?.message ?? "Ocorreu um erro ao validar os dados enviados.");
+    this.name = "ValidationError";
+    this.action = props?.action ?? "Ajuste os dados e tente novamente.";
+    this.context = props?.context ?? undefined;
+    this.statusCode = 400;
+  }
+}
+
+export class ForbiddenError extends BaseError {
+  constructor(props?: Partial<{ message: string; action: string }>) {
+    super(
+      props?.message ?? "Você não possui permissão para executar esta ação.",
+    );
+    this.name = "ForbiddenError";
+    this.action =
+      props?.action ??
+      "Verifique se você possui permissão para realizar esta ação.";
+    this.statusCode = 403;
   }
 }

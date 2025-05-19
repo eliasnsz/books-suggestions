@@ -7,6 +7,7 @@ export type User = {
   email: string;
   first_name: string;
   last_name: string;
+  features: string[];
   profile_image_url: string;
   created_at: string;
 };
@@ -35,7 +36,7 @@ async function findOneById(userId: string) {
     const userQueryResult = await query<User>({
       text: `
         SELECT
-          id, google_id, first_name, last_name, email, profile_image_url, created_at
+          id, google_id, first_name, last_name, email, features, profile_image_url, created_at
         FROM
           users
         WHERE
@@ -59,7 +60,7 @@ async function findOrCreateFromGoogle(
     const result = await query<User>({
       text: `
         SELECT 
-          id, google_id, first_name, last_name, email, profile_image_url, created_at
+          id, google_id, first_name, last_name, email, features, profile_image_url, created_at
         FROM
           users
         WHERE
@@ -78,18 +79,21 @@ async function findOrCreateFromGoogle(
   }
 
   async function createFromGoogle(userObject: CreateUserParams) {
+    const defaultUserFeatures = [];
+
     const result = await query<User>({
       text: `
       INSERT INTO 
-        users (google_id, email, first_name, last_name, profile_image_url) 
+        users (google_id, email, first_name, last_name, features, profile_image_url) 
       VALUES
-        ($1, $2, $3, $4, $5)
+        ($1, $2, $3, $4, $5, $6)
       RETURNING
         id, 
         google_id, 
         email, 
         first_name, 
         last_name,
+        features,
         profile_image_url,
         created_at;
       `,
@@ -98,6 +102,7 @@ async function findOrCreateFromGoogle(
         userObject.email,
         userObject.firstName,
         userObject.lastName,
+        defaultUserFeatures,
         userObject.profileImageUrl,
       ],
     });
@@ -106,7 +111,26 @@ async function findOrCreateFromGoogle(
   }
 }
 
+async function addFeatures(userId: string, features: string[]) {
+  await runUpdateQuery(userId, features);
+
+  async function runUpdateQuery(userId: string, features: string[]) {
+    await query({
+      text: `
+        UPDATE 
+          users 
+        SET 
+          features = array_cat(features, $1) 
+        WHERE 
+          users.id = $2;
+      `,
+      values: [features, userId],
+    });
+  }
+}
+
 export default Object.freeze({
   findOneById,
   findOrCreateFromGoogle,
+  addFeatures,
 });

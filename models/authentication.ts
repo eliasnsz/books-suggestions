@@ -21,6 +21,7 @@ async function authenticateWithGoogle(code: string) {
     email: userFromGoogle.email,
     first_name: userFromGoogle.first_name,
     last_name: userFromGoogle.last_name,
+    features: userFromGoogle.features,
     profile_image_url: userFromGoogle.profile_image_url,
     created_at: userFromGoogle.created_at,
   };
