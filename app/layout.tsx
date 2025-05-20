@@ -1,11 +1,13 @@
-import { Geist } from "next/font/google";
-import type { ReactNode } from "react";
-import type { Metadata } from "next";
 import "../styles/globals.css";
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { Geist } from "next/font/google";
 
 import dayjs from "dayjs";
 import ptBr from "dayjs/locale/pt-br";
 import relativeTime from "dayjs/plugin/relativeTime";
+
+import { QueryClientProvider } from "@/providers/query-client-provider";
 
 dayjs.locale(ptBr);
 dayjs.extend(relativeTime);
@@ -22,7 +24,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR" className={geist.className}>
-      <body>{children}</body>
+      <body>
+        <QueryClientProvider>{children}</QueryClientProvider>
+      </body>
     </html>
   );
 }
