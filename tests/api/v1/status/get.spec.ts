@@ -14,9 +14,20 @@ describe("GET api/v1/status", async () => {
       expect(parsedUpdatedAt).toEqual(responseBody.updated_at);
 
       expect(response.status).toBe(200);
-      expect(responseBody.status).toBe("HEALTHY");
-      expect(responseBody.dependencies.database.active_connections).toEqual(1);
-      expect(responseBody.dependencies.database.max_connections).toEqual(100);
+      expect(responseBody.dependencies.database).toMatchObject({
+        status: "HEALTHY",
+        active_connections: 1,
+        max_connections: 100,
+        postgres_version: expect.any(String),
+      });
+
+      expect(responseBody.dependencies.webserver).toEqual(
+        expect.objectContaining({
+          status: "HEALTHY",
+          provider: "local",
+          environment: "local",
+        }),
+      );
     });
   });
 });
