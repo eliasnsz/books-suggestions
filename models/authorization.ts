@@ -45,7 +45,7 @@ function validateFeature(feature: string) {
 }
 
 function canRequest(userTryingToRequest: User, feature: string) {
-  if (!userTryingToRequest.features.includes(feature)) {
+  if (!can(userTryingToRequest, feature)) {
     throw new ForbiddenError({
       message: "Usuário não pode executar esta ação.",
       action: `Verifique se o usuário possui a feature "${feature}".`,

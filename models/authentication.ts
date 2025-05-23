@@ -9,7 +9,7 @@ import jwt from "./jwt";
 async function authenticateWithGoogle(code: string) {
   const userDataFromGoogle = await google.getGoogleUserFromCode(code);
 
-  const userFromGoogle = await user.findOrCreateFromGoogle({
+  const userFoundOrCreated = await user.findOrCreateFromGoogle({
     google_id: userDataFromGoogle.id,
     email: userDataFromGoogle.email,
     firstName: userDataFromGoogle.given_name,
@@ -17,18 +17,12 @@ async function authenticateWithGoogle(code: string) {
     profileImageUrl: userDataFromGoogle.picture,
   });
 
-  const payload = {
-    email: userFromGoogle.email,
-    first_name: userFromGoogle.first_name,
-    last_name: userFromGoogle.last_name,
-    features: userFromGoogle.features,
-    profile_image_url: userFromGoogle.profile_image_url,
-    created_at: userFromGoogle.created_at,
-  };
-
-  const token = jwt.generateJsonWebToken(payload, {
-    subject: userFromGoogle.id,
-  });
+  const token = jwt.generateJsonWebToken(
+    {},
+    {
+      subject: userFoundOrCreated.id,
+    },
+  );
 
   return token;
 }

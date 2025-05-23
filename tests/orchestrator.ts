@@ -69,6 +69,10 @@ async function addFeaturesToUser(userObject: User, features: string[]) {
   await user.addFeatures(userObject.id, features);
 }
 
+async function removeFeatureFromUser(userObject: User, feature: string) {
+  await user.removeFeature(userObject.id, feature);
+}
+
 async function authenticateUser(userData: User) {
   const { id, ...userWithoutId } = userData;
 
@@ -86,4 +90,5 @@ export default Object.freeze({
   createNewUser,
   authenticateUser,
   addFeaturesToUser,
+  removeFeatureFromUser,
 });

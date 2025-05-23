@@ -79,24 +79,24 @@ async function findOrCreateFromGoogle(
   }
 
   async function createFromGoogle(userObject: CreateUserParams) {
-    const defaultUserFeatures = [];
+    const defaultUserFeatures = ["read:session"];
 
     const result = await query<User>({
       text: `
-      INSERT INTO 
-        users (google_id, email, first_name, last_name, features, profile_image_url) 
-      VALUES
-        ($1, $2, $3, $4, $5, $6)
-      RETURNING
-        id, 
-        google_id, 
-        email, 
-        first_name, 
-        last_name,
-        features,
-        profile_image_url,
-        created_at;
-      `,
+        INSERT INTO 
+          users (google_id, email, first_name, last_name, features, profile_image_url) 
+        VALUES
+          ($1, $2, $3, $4, $5, $6)
+        RETURNING
+          id, 
+          google_id, 
+          email, 
+          first_name, 
+          last_name,
+          features,
+          profile_image_url,
+          created_at;
+        `,
       values: [
         userObject.google_id,
         userObject.email,
@@ -129,8 +129,27 @@ async function addFeatures(userId: string, features: string[]) {
   }
 }
 
+async function removeFeature(userId: string, feature: string) {
+  await runUpdateQuery(userId, feature);
+
+  async function runUpdateQuery(userId: string, feature: string) {
+    await query({
+      text: `
+        UPDATE 
+          users 
+        SET 
+          features = array_remove(features, $1) 
+        WHERE 
+          users.id = $2;
+      `,
+      values: [feature, userId],
+    });
+  }
+}
+
 export default Object.freeze({
   findOneById,
   findOrCreateFromGoogle,
   addFeatures,
+  removeFeature,
 });
