@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-BR" className={geist.className}>
+    <html suppressHydrationWarning lang="pt-BR" className={geist.className}>
       <body>
         <QueryClientProvider>{children}</QueryClientProvider>
       </body>

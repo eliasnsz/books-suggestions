@@ -7,6 +7,8 @@ import {
 } from "@/infra/controller";
 
 async function getHandler(request: NextRequest, context) {
+  console.log(Math.round(Math.random() * 1000));
+
   const user = context.user;
 
   return NextResponse.json(user, { status: 200 });
